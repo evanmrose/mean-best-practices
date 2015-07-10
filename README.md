@@ -1,5 +1,84 @@
 # MEAN Stack Development Best Practices
+
 A collection of development best practices for rapidly developing MEAN (MongoDB, Express, Angular, Node) applications
+
+## Front End Project Structure Conventions
+
+The front end of your structure should group code by view with the exception of common modules or services. A normal module should be structured like:
+
+````
+-[module]
+    -[controllers]
+        -moduleController.js
+    -[services]
+        -moduleService.js
+    -[directives]
+        -moduleDirective.js
+    -[filters]
+        -filterName.js
+    -[partials]
+        -modulePartialName.html
+    -[specs]
+        -moduleTestName.spec.js
+    -[data]
+        -data.json
+    -index.js
+````
+
+Using Gulp/Browserify, you can define the dependencies of your module and bind the controllers/services etc in the index.js file and have browserify crawl the application and generate a dependency tree as well as spit out a single concatenated JS file. An index.js file should look like this:
+
+````
+    'use strict';
+    require('modules/common/services/commonService');
+    require('modules/common/modules/commonModule');
+    require('modules/common/services/commonService2');
+    require('../config').registerModule('my-module', ['commonService', 'commonModule', 'commonService2']);
+    require('./config/myModule.config');
+    require('./controllers/myModuleController');
+````
+
+Based on this structure, the application tree should look something like:
+
+````
+[www]
+    -[css]
+    -[img]
+    -[fonts]
+    -[js]
+        -[config]
+        -[libs]
+        -[mocks]
+        -[modules]
+            -[common]
+                -[modules]
+                    -[commonModule1]
+                        -[config]
+                            -commonModule1.config.js
+                        -[controllers]
+                            -commonModule.js
+                        -[directives]
+                            -directiveName.js
+                        -[filters]
+                            -filterName.js
+                        -[partials]
+                            -templateName.js
+                        -[specs]
+                            -testName.js
+                        -[data]
+                            -data.json
+                        -index.js
+                -[services]
+                -[utilities]
+            -[modules]
+                -[view1]
+                    ...standard module structure...
+                index.js <--bootstrap the app, set up all configs in the .run, .config, or .value blocks 
+                config.js <--define app name, dependencies, any application properties you want to include with all modules
+                config-test.js <-- configure the tests, require mocks, etc
+                modules.js <--contains a manifest of all modules to be included in the app
+        index.js <--requires ./modules
+    index.html <--your app entry point
+````
 
 ## Build Process Conventions
 
@@ -17,11 +96,63 @@ This will generate a project scaffold using best practices set out for rapid dev
 
 ## CSS Conventions
 
+### Use Icon Fonts Where Possible
+
+Your /img folder or the equivalent should not be a massive list of assets. While there are some assets that must be delivered as .png or .jpg, many common icons can be compacted for better performance. Reduce the number of network requests by using SVG and creating an icon font containing all of the icons you'll need. A great tool for setting up icon fonts is http://icomoon.com which will let you manage the creation of the font as well as the addition or deletion of assets.
+
+### If You Can't Use Icon Fonts, Use Spritemaps
+
+If for any reason you are unable to create icon fonts with assets provided by the design team, then concatenate all assets into a single file and generate a set of css classes that reference the position of each asset. There are tools like https://draeton.github.io/stitches/ that make spritemap creation very easy.
+
+### `z-index` Scale
+
+Don't sprinkle your z-index declarations freely about your Sass. Place them all into a single file where you can manage them centrally. This will help avoid easily fixable element layer bugs and standardize z-indexes used across your development team. If possible, settle on an accepted z-index range (i.e. 1-10) which can be set to sass vars then you can set up a number of classes for different layer z-index values to use throughout the application.
+
+### Color Scales and Type Scales
+
+Centralize your color and type (font size, font weight, font family) variables in one central declaration that can be leveraged throughout the application.
+
+### Class Name Syntax
+
+Lower case and with dashes between words like `my-class`.
+
+### Abstract Components
+
+When writing css (and JS code for that matter), think about what common elements can be abstracted to form re-usable components. Instead of `.homepage-login-button`, create an abstracted `.button` class which can be modified with context classes.
+
+### Styling the Styles
+
+Style blocks should have exactly one new line between them. When separating selectors by a comma, each selector should have its own line. All css should be indented by 4 spaces. Most modern IDEs have a setting for this.
+
+### Style Specificity
+
+Don't get too crazy with the specificity of your selectors as this has a performance penalty. Try to simplify your selectors as much as possible. For example:
+
+````
+BAD
+
+ul.user-list li span a:hover { 
+    color: red; 
+}
+````
+
+versus
+
+````
+GOOD
+
+.user-list a:hover { 
+    color: red; 
+}
+
+````
+
 ### Mobile First
 
 Responsive styling should follow a mobile first approach. Media queries are defined in a common sass file and should only use the named media queries.
 
 ### No Inline Styles
+
 There should be no inline styles in the HTML files. Ever. All styles need to be defined in a .scss file.
 
 ### Spaces & Indentation
@@ -35,8 +166,6 @@ The "!important" tag should be avoided. Use CSS cascading rules for defining sty
 http://coding.smashingmagazine.com/2010/11/02/the-important-css-declaration-how-and-when-to-use-it/
 
 ### Naming Convention
-
-#### Prefix
 
 Styles should contain a common prefix defined by your project tech lead i.e. "ir-" to prevent class name collisions. Dashes should be used between words in class names.
 
