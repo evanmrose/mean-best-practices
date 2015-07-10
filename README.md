@@ -240,7 +240,9 @@ Example documentation:
 
 ### JS Coding Conventions
 
-We will adhere to a subset of the AirBnb Javascript coding conventions which can be found here: https://github.com/airbnb/javascript
+We will adhere to a subset of the AirBnb Javascript coding conventions (excluding their spacing standard among other things) which can be found here: https://github.com/airbnb/javascript
+
+Fork of AirBnb JS conventions to come in a later version.
 
 ### Using Angular
 
@@ -255,7 +257,7 @@ When developing in Angular 1.3, be sure to use bind-once when whenever possible.
 
 #### Dependency Injection
 
-In order for r.js and uglification to not obfuscate angular dependencies, the following inline method for injection should be followed:
+In order for uglification to not obfuscate angular dependencies, the following inline method for injection should be followed:
 
 ````
 myApp.controller('nameOfController', ['$scope', '$timeout', 'nameOfService', function($scope, $timeout, nameOfService){
